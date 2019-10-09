@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>蒲公英的种子-设置</title>
+    <link rel="stylesheet" href="/static/css/common.css">
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.css">
+</head>
+<body>
+{{template "public/header.html" .}}
+<div class="container">
+   <div class="col-md-3">
+       <ul class="nav nav-pills nav-stacked">
+           <li role="presentation" class="active">
+               <a href="#userinfo" role="tab" data-toggle="tab">基本信息</a>
+           </li>
+           <li role="presentation" class="">
+               <a href="#chpwd" role="tab" data-toggle="tab">修改密码</a>
+           </li>
+           <li role="presentation" class="">
+               <a href="/web/logout">退出</a>
+           </li>
+       </ul>
+   </div>
+    <div class="col-md-7">
+        <div class="tab-content">
+            <div role="tapanel" class="tab-pane active" id="userinfo">
+                <form action="/web/center" method="post">
+                    <div class="form-group">
+                        <label for="nick">昵称</label>
+                        <input type="text" class="form-control" name="nick" id="nick" value="{{.webUser.Nick}}">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">手机</label>
+                        <input type="text" class="form-control" name="phone" id="phone" value="{{.webUser.Phone}}">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">邮箱</label>
+                        <input type="text" class="form-control" name="email" id="email" value="{{.webUser.Email}}">
+                    </div>
+                    <input type="hidden" name="type" value="info">
+                    <button type="submit" class="btn btn-primary">提交</button>
+                </form>
+            </div>
+            <div role="tapanel" class="tab-pane" id="chpwd">
+                <form action="/web/center" method="post">
+                    <div class="form-group">
+                        <label for="old">原密码</label>
+                        <input type="password" class="form-control" name="old" id="old">
+                    </div>
+                    <div class="form-group">
+                        <label for="new">新密码</label>
+                        <input type="password" class="form-control" name="new" id="new">
+                    </div>
+                    <div class="form-group">
+                        <label for="renew">重复新密码</label>
+                        <input type="password" class="form-control" name="renew" id="renew">
+                    </div>
+                    <input type="hidden" name="type" value="pwd">
+                    <button type="submit" class="btn btn-primary">提交</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/static/js/jquery-2.1.1.js"></script>
+<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+<script src="/static/js/common.js"></script>
+<script>
+    $('form').on("submit",function(){
+        var tmp = ajaxSubmit(this,function(){
+            var data = tmp.responseJSON;
+            if(data.success){
+                alert("修改成功")
+            }else{
+                alert(data.content)
+            }
+        })
+        return false
+    })
+</script>
+{{template "public/footer.html"}}

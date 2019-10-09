@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>蒲公英的种子-广场</title>
+    <link rel="stylesheet" href="/static/css/common.css">
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.css">
+</head>
+<body>
+{{template "public/header.html" .}}
+<div class="container">
+    <ul class="list-group">
+    {{range $index,$value := .msgList}}
+        <li class="list-group-item">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    from：{{$value.Msg.User.Nick}} {{if $.webUser }}{{if eq $.webUser.Id $value.Msg.User.Id}}
+                    <span class="right repeal" data-msgid="{{ $value.Msg.Id}}">撤销</span>{{end}}{{end}}<span
+                        class="right comment" data-msgid="{{ $value.Msg.Id}}">评论</span></div>
+                <div class="panel-body">
+                    <div class="msg-content msg-content{{$value.Msg.Id}}">
+                    {{$value.Msg.Content}}
+                    </div>
+
+                    {{if $value.Comment}}
+                        <div class="msg-comment">
+                            <ul class="list-group comment{{$value.Msg.Id}}">
+                            {{range $i1,$v1 := $value.Comment}}
+                                <li class="list-group-item"><span class="comment-form">{{$v1.User.Nick}}</span><div class="comment-content">{{$v1.Content}}</div></li>
+                            {{end}}
+                            </ul>
+                        </div>
+                    {{else}}
+                        <div class="msg-comment" style="display: none">
+                            <ul class="list-group comment{{$value.Msg.Id}}"></ul>
+                        </div>
+                    {{end}}
+
+                </div>
+            </div>
+        </li>
+    {{end}}
+    </ul>
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            <li>
+                <a href="{{.pageUrl}}?pageNo={{.pageInfo.firstPage.No}}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+        {{range $value := .pageInfo.pageList}}
+            <li {{if eq $value.Status 1}} class="active" {{end}}><a
+                    href="{{$.pageUrl}}?pageNo={{$value.No}}">{{$value.No}}</a></li>
+        {{end}}
+            <li>
+                <a href="{{.pageUrl}}?pageNo={{.pageInfo.endPage.No}}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <div id="to-comment">
+        <input type="hidden" id="to-comment-id">
+        <input type="text" class="form-control" id="to-comment-content"><span class="btn btn-primary"
+                                                                              id="comment-button">提交</span>
+    </div>
+</div>
+<script src="/static/js/jquery-2.1.1.js"></script>
+<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+<script src="/static/js/common.js"></script>
+<script>
+    if({{.flash.notice}}){
+        alert("本平台致力于为广大网友提供一个安全发泄自己心情的环境")
+    }
+    $(".repeal").on("click", function () {
+        var msgId = $(this).data("msgid");
+        $.post("/web/msg/del/" + msgId, function (data) {
+            if (data.success) {
+                window.location.reload()
+            } else {
+                alert(data.Content)
+            }
+        }, "json")
+    })
+
+    $(".comment").on("click", function () {
+        var msgId = $(this).data("msgid");
+        $("#to-comment").show();
+        $("#to-comment-content").val("")
+        $("#to-comment-content").focus();
+        $("#to-comment-id").val(msgId);
+    })
+
+    $("#comment-button").on("click", function () {
+        var msgId = $("#to-comment-id").val();
+        var content = $("#to-comment-content").val();
+        $.post("/web/comment/add/"+msgId,{"content":content},function (data) {
+            if(data.success){
+                var li = ' <li class="list-group-item"><span class="comment-form">{{.webUser.Nick}}</span><div class="comment-content">' + content + '</div></li>';
+                var commenClass = $(".comment" + msgId);
+                commenClass.parent().show();
+                commenClass.append(li)
+                $("#to-comment").hide();
+            }else{
+                $("#to-comment").hide();
+                alert(data.Content)
+            }
+        },"json")
+
+
+    })
+
+
+</script>
+{{template "public/footer.html"}}

@@ -1,0 +1,15 @@
+<header>
+    <nav class="navbox">
+        <span>
+            <a href="/">广场</a>
+        </span>
+        <span class="pull-right">
+            {{if .webUser}}
+                <a href="/web/center">设置</a>
+                <a href="/web/add">发布</a>
+            {{else}}
+                <a href="/web/login">加入我们</a>
+            {{end}}
+        </span>
+    </nav>
+</header>
