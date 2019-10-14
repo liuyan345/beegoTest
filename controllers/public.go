@@ -9,7 +9,9 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 	"github.com/astaxie/beego/validation"
+	"io/ioutil"
 	"math/rand"
+	"regexp"
 	"strconv"
 	"time"
 )
@@ -25,6 +27,57 @@ func (this *PublicController) Login() {
 type RET struct {
 	Ok      bool        `json:"success"`
 	Content interface{} `json:"content"`
+}
+
+func (this *PublicController) HeadImg() {
+	this.TplName = "register/headimg.html"
+}
+
+func (this *PublicController) ChangeHeadImg() {
+	ret := RET{
+		Ok:      true,
+		Content: "success",
+	}
+
+	defer func() {
+		this.Data["json"] = ret
+		this.ServeJSON()
+	}()
+
+	webUser := this.GetSession("webUser").(class.User)
+
+	header := this.GetString("head")
+	path := fmt.Sprintf("%s%s%s", "/static/img/head/", strconv.Itoa(webUser.Id), ".png")
+	err2 := writeFile("."+path, header) //写入文件(字节数组)
+
+	if err2 {
+		webUser.Headimg = path
+		webUser.Update()
+		this.DoLogin(webUser)// 更新session
+	}else{
+		ret.Ok = false
+		ret.Content = "上传失败"
+	}
+
+}
+
+func writeFile(path string, base64_img_content string) bool {
+	b, _ := regexp.MatchString(`^data:\s*image\/(\w+);base64,`, base64_img_content)
+	if !b {
+		return false
+	}
+	re, _ := regexp.Compile(`^data:\s*image\/(\w+);base64,`)
+
+	base64str := re.ReplaceAllString(base64_img_content, "")
+
+	byte, _ := base64.StdEncoding.DecodeString(base64str)
+
+	err2 := ioutil.WriteFile(path, byte, 0666)
+
+	if err2 != nil {
+		panic(err2)
+	}
+	return true
 }
 
 func (this *PublicController) ToLogin() {
@@ -69,15 +122,17 @@ func (this *PublicController) ToLogin() {
 
 		// 数据写入
 		u := &class.User{
+			Id:       0,
 			Email:    email,
 			Phone:    phone,
 			Nick:     GetNick(),
 			Status:   1,
 			Password: PwGen(password),
 			Created:  time.Now(),
+			Headimg:  "/static/img/head/default.jpg",
 		}
 		isRegister := false
-		condition :=  map[string] string {}
+		condition := map[string]string{}
 		switch {
 		case u.ExistFiled("Email"):
 			condition["email"] = u.Email
@@ -100,14 +155,14 @@ func (this *PublicController) ToLogin() {
 			if err == orm.ErrNoRows {
 				valid.Error("账号存在，或密码不正确")
 			}
-			if PwCheck(password,u.Password){
+			if PwCheck(password, u.Password) {
 				this.DoLogin(*u)
 				return
-			}else{
+			} else {
 				valid.Error("账号存在，或密码不正确")
 			}
 		} else {
-			fmt.Println("new login",*u)
+			fmt.Println("new login", *u)
 			this.DoLogin(*u)
 			return
 		}

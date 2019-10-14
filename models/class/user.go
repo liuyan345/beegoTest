@@ -10,6 +10,7 @@ import (
 type User struct {
 	Id int `orm:"pk;auto"`
 	Nick string `orm:"size(60)"`
+	Headimg string `orm:"size(100)"`
 	Email string `orm:"size(100)"`
 	Phone string `orm:"size(15)"`
 	Password string `orm:"size(64)"`
