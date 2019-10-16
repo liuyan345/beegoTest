@@ -26,6 +26,7 @@
         </div>
     </div>
 </div>
+
 {{template "public/js.html"}}
 <script src="/static/js/cropper.min.js"></script>
 <script>
@@ -45,39 +46,6 @@
         }
     })();
     //图像上传
-    //cropper图片裁剪
-    $('#tailoringImg').cropper({
-        aspectRatio: 1/1,//默认比例
-        //preview: '.previewImg',//预览视图
-        guides: false,  //裁剪框的虚线(九宫格)
-        autoCropArea: 0.5,  //0-1之间的数值，定义自动剪裁区域的大小，默认0.8
-        movable: false, //是否允许移动图片
-        dragCrop: true,  //是否允许移除当前的剪裁框，并通过拖动来新建一个剪裁框区域
-        movable: true,  //是否允许移动剪裁框
-        resizable: true,  //是否允许改变裁剪框的大小
-        zoomable: false,  //是否允许缩放图片大小
-        mouseWheelZoom: false,  //是否允许通过鼠标滚轮来缩放图片
-        touchDragZoom: true,  //是否允许通过触摸移动来缩放图片
-        rotatable: true,  //是否允许旋转图片
-        crop: function(e) {
-            // 输出结果数据裁剪图像。
-        }
-    });
-    $('#tailoringImg').cropper('replace', $_GET.head,false);//默认false，适应高度，不失真
 
-    //裁剪后的处理
-    $("#sureCut").on("click",function () {
-        if ($("#tailoringImg").attr("src") == null ){
-            return false;
-        }else{
-            var cas = $('#tailoringImg').cropper('getCroppedCanvas');//获取被裁剪后的canvas
-            var base64url = cas.toDataURL('image/png'); //转换为base64地址形式
-            // $("#finalImg").prop("src",base64url);//显示为图片的形式
-            // console.log(base64url);
-            $.post("/web/headimg",{head:base64url},function(){
-                window.location.href = "/web/center"
-            })
-        }
-    });
 </script>
 {{template "public/footer.html"}}

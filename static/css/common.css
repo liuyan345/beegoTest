@@ -12,6 +12,9 @@ body{
     line-height: 50px;
     text-align: center;
     background: #ced2cf;
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
 }
 
 nav.navbox{
@@ -59,3 +62,15 @@ nav.navbox a:hover, nav.navbox a.active {
 #comment-button{
     float: right;
 }
+
+.shade-div{
+    display: none;
+    position:absolute;
+    top:0;
+    bottom:0;
+    left:0;
+    right:0;
+    background: #353535;
+    z-index: 2;
+}
+
